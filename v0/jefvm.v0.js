@@ -98,6 +98,7 @@ function JeForthVM() {
 }
 // Create vm and ready to test
 var vm=new JeForthVM(), tests=0, passed=0;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function equal(value,expected){
 	tests++;
