@@ -69,7 +69,7 @@ version 1
     vm.exec('5 type 2 . 5 .');
     ```
 
-7. We could define arithmatic operations +, -, *, and / as jef words.
+7. We could define **arithmatic operations** +, -, *, and / as jef words. Each of them pops two items (numbers or strings) on data stack and push computation result back to data stack.
     ```
     vm.exec(
     'code + function(){'+
@@ -85,3 +85,33 @@ version 1
     '  var b=vm.dstack.pop();vm.dstack.push(vm.dstack.pop()/b);'+
     '} end-code');
     ```
+
+8. We could test the computation as follows to get 'abc defghi 3' as **vm.to**b (test 7).
+    ```
+    vm.exec('"abc def" '+"'ghi' + . 2.23 0.23 - 3 * 2 / .");
+    ```
+   
+9. We could define **hex**, **decimal**, **binary** as jef words to change **vm.base**, the number convertion base, so that hexadecimal or bainary numbers could be entered or printed easily.
+    ```
+    vm.exec('code hex     function(){vm.base=16;} end-code');
+    vm.exec('code decimal function(){vm.base=10;} end-code');
+    vm.exec('code binary  function(){vm.base= 2;} end-code');
+    ```
+   
+10. We could test conversion of decimal 128 to get hexadecimal string '80' (test 8).
+    ```
+    vm.exec('128 hex .');
+    ```
+
+11. We could test conversion of hexadecimal 100 to get decimal string '256' (test 9).
+    ```
+    vm.exec('100 decimal .');
+    ```
+
+12. We could test conversion of decimal 11 to get binary string '1011' (test 10).
+    ```
+    vm.exec('11 binary .');
+    ```
+
+
+
