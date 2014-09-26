@@ -1,5 +1,4 @@
 // jefvm.v0_test.js
-
 function equal(value,expected){
 	tests++;
 	if(value===expected) passed++;

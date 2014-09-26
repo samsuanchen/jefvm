@@ -112,6 +112,3 @@ version 1
     ```
     vm.exec('11 binary .');
     ```
-
-
-
