@@ -11,8 +11,6 @@
     2011/12/23  initial version by yapcheahshen@gmail.com
                 equiv to http://tutor.ksana.tw/ksanavm lesson1~8
     TODO: complete eForth core word set
-          interface to HTML5 canvas
-          port C.H.Ting flag demo for kids
     this is merely a kick off, everyone is welcome to enhance it. */
 
 function JeForthVM() {

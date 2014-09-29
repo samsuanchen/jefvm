@@ -1,12 +1,12 @@
 jefvm
 =====
 
-jef (javascript easy forth or jeforth) vm (virtual machine) tutorial -- implementation under [espruino web ide](https://www.google.com.tw/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0CCEQFjAA&url=https%3AFFchrome.google.comFwebstoreFdetailFespruino-web-ideFbleoifhkdalbjfbobjackfdifdneehpo&ei=3ngfVIa7Mc3q8AX884CIAQ&usg=AFQjCNHyNk_XkpLYJ6DNByefI7znAP5lgg&sig2=XZR5mUsyb8sJv3U7rR9YkQ "%3") for [STM32F4 Discovery board](http://www.st.com/web/catalog/tools/FM116/SC959/SS1532/PF252419?sc=internet/evalboard/product/252419.jsp ""). We can use javascript (even [in line assembly](http://www.espruino.com/Assembler#line=145 "")) to define new jeforth words to execute.
+jef (javascript easy forth or jeforth) vm (virtual machine) tutorial -- implementation under [espruino web ide](https://www.google.com.tw/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0CCEQFjAA&url=https%3AFFchrome.google.comFwebstoreFdetailFespruino-web-ideFbleoifhkdalbjfbobjackfdifdneehpo&ei=3ngfVIa7Mc3q8AX884CIAQ&usg=AFQjCNHyNk_XkpLYJ6DNByefI7znAP5lgg&sig2=XZR5mUsyb8sJv3U7rR9YkQ "%3") for [STM32F4 Discovery board](http://www.st.com/web/catalog/tools/FM116/SC959/SS1532/PF252419?sc=internet/evalboard/product/252419.jsp ""). We could use javascript (even [in line assembly](http://www.espruino.com/Assembler#line=145 "")) to define new jef words to execute.
 
 version 0
 ---------
 
-**jefvm.v0** implemented **vm.words** in which has only a jef word **code** as **vm.words[1]**, initially. Once jefvm.v0.js is loaded via [espruino web ide](https://www.google.com.tw/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0CCEQFjAA&url=https%3AFFchrome.google.comFwebstoreFdetailFespruino-web-ideFbleoifhkdalbjfbobjackfdifdneehpo&ei=3ngfVIa7Mc3q8AX884CIAQ&usg=AFQjCNHyNk_XkpLYJ6DNByefI7znAP5lgg&sig2=XZR5mUsyb8sJv3U7rR9YkQ "%3"), we could use the **code** to define new jeforth words (to add more jef words to **vm.words**) in javascript (even [in line assembly](http://www.espruino.com/Assembler#line=145 "")) to execute.
+**jefvm.v0** implemented **vm.words** in which has only a jef word **code** as **vm.words[1]**, initially. Once jefvm.v0.js is loaded via [espruino web ide](https://www.google.com.tw/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0CCEQFjAA&url=https%3AFFchrome.google.comFwebstoreFdetailFespruino-web-ideFbleoifhkdalbjfbobjackfdifdneehpo&ei=3ngfVIa7Mc3q8AX884CIAQ&usg=AFQjCNHyNk_XkpLYJ6DNByefI7znAP5lgg&sig2=XZR5mUsyb8sJv3U7rR9YkQ "%3"), we could use the word **code** to define new jef words (to add more jef words to **vm.words**) in javascript (even [in line assembly](http://www.espruino.com/Assembler#line=145 "")) to execute.
 
 1. For example, we could define jef word r1 to turn on red led on discovery board as follows (test 1).
     ```
@@ -69,7 +69,7 @@ version 1
     vm.exec('5 type 2 . 5 .');
     ```
 
-7. We could define **arithmatic operations** +, -, *, and / as jef words. Each of them pops two items (numbers or strings) on data stack and push computation result back to data stack.
+7. We could define **arithmatic operations** +, -, *, and / as jef words. Each of them pops two items (numbers or strings) from data stack and push back the computational result to data stack.
     ```
     vm.exec(
     'code + function(){'+
@@ -112,3 +112,60 @@ version 1
     ```
     vm.exec('11 binary .');
     ```
+
+13. We could define a new jef word **.r** (called 'dot r') to pop m and n from data stack and print n right aligned in a field of m characters wide.
+    ```
+    vm.exec(
+    'code .r function(){'							+
+    '  var w=vm.dStack.pop(), n=""+vm.dStack.pop();'+
+    '  vm.type("         ".substr(0,w-n.length)+n)'	+
+    '} end-code');
+    ```
+
+14. We could try **.r** as follows to get '  5 10 15' as **vm.tob** (test 11).
+    ```
+    vm.exec('5 3 .r 10 3 .r 15 3 .r');
+    ```
+
+version 2
+---------
+
+**jefvm.v2** implemented **vm.cArea** as code area to hold compiled codes of high level colon definitions. As well, it implemented **vm.ip** and **vm.rStack** as instrction pointer and return stack to execute a word of high level colon definition in which any existig word could be called just by name.
+
+1. A piece of compiled code doing '3 .r' defined as word t at 1 of **vm.cArea** could be as follows.
+
+    ```
+    vm.cArea=[ 0,vm.nameWord['doLit'],3,vm.nameWord['.r'],vm.nameWord['exit'] ];
+    vm.addWord('t',1);
+    ```
+
+2. So we could try **t** (test 12)**** as follows to get the same result as previous test.
+    ```
+    vm.exec('5 t 10 t 15 t');
+    ```
+
+3. We could defined **:** (colon) and **;** (semicolon) to define high level colon definition in which any existig word could be called just by name. In the following, the word **immediate** is defined as well. It is used to declare the word **;** (semicolon) as an immediate word so that it will compile the word **exit** and close the colon definition of **x** as follows.
+    ```
+    vm.exec(
+	    'code : function colon(){						' +
+	    '  vm.newName=vm.nextToken(),					' +
+	    '  vm.newXt=vm.cArea.length,vm.compiling=1;    	' +
+	    '} end-code    									' +
+	    'code immediate function immediate(){			' +
+	    '  vm.words[vm.words.length-1].immediate=1;		' +
+	    '} end-code    									' +
+	    'code ; function semicolon(){					' +
+	    '  vm.compileCode("exit"),vm.compiling=0,		' +
+	    '  vm.addWord(vm.newName,vm.newXt);    			' +
+	    '} end-code immediate                           '
+    );
+    vm.exec(': x 3 .r ;');
+    ```
+
+4. **x** is defined exactly the same as **t**. So we could try **x** (test 13) as follows to get the same result as previous test.
+    ```
+    vm.exec('5 x 10 x 15 x');
+    ```
+
+
+
