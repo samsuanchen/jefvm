@@ -73,25 +73,26 @@ vm.exec('5 3 .r 10 3 .r 15 3 .r');
 equal('test 11',vm.tob,"  5 10 15"),vm.cr();
 //////////////////////////////////////////////////////////////////////////////////////////// v2
 vm.cArea=[ 0,vm.nameWord['doLit'],3,vm.nameWord['.r'],vm.nameWord['exit'] ],vm.addWord('t',1);
-vm.exec('5 t 10 t 15 t');
-equal('test 12',vm.tob,"  5 10 15"),vm.cr();
-//////////////////////////////////////////////////////////////////////////////////////////// v2
-vm.exec(
-vm.exec(
-	'code : function colon(){						' +
-	'  vm.newName=vm.nextToken(),					' +
-	'  vm.newXt=vm.cArea.length,vm.compiling=1;    	' +
-	'} end-code    									' +
-	'code immediate function immediate(){			' +
-	'  vm.words[vm.words.length-1].immediate=1;		' +
-	'} end-code    									' +
-	'code ; function semicolon(){					' +
-	'  vm.compileCode("exit"),vm.compiling=0,		' +
-	'  vm.addWord(vm.newName,vm.newXt);    			' +
-	'} end-code immediate                           '
-);
-//////////////////////////////////////////////////////////////////////////////////////////// v1
-vm.exec(': x 3 .r ; 5 x 10 x 15 x');
-equal('test 13',vm.tob,"  5 10 15"),vm.cr();
+setTimeout(function(){ // need 1000 ms delay
+	vm.exec('5 t 10 t 15 t');
+	equal('test 12',vm.tob,"  5 10 15"),vm.cr();
+	//////////////////////////////////////////////////////////////////////////////////////// v2
+	vm.exec(
+		'code : function colon(){'						+
+		'  vm.newName=vm.nextToken(),'					+
+		'  vm.newXt=vm.cArea.length,vm.compiling=1;'	+
+		'} end-code '									+
+		'code immediate function immediate(){'			+
+		'  vm.words[vm.words.length-1].immediate=1;'	+
+		'} end-code '									+
+		'code ; function semicolon(){'					+
+		'  vm.compileCode("exit"),vm.compiling=0;'		+
+		'  vm.addWord(vm.newName,vm.newXt);'			+
+		'} end-code immediate '
+    );
+	vm.exec(': x 3 .r ; 5 x 10 x 15 x');
+	equal('test 13',vm.tob,"  5 10 15"),vm.cr();
+	//////////////////////////////////////////////////////////////////////////////////////// v2
+	console.log('total tests', tests, 'passed', passed);
+},1000);
 ///////////////////////////////////////////////////////////////////////////////////////////////
-console.log('total tests', tests, 'passed', passed);

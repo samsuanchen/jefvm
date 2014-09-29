@@ -21,8 +21,6 @@ function JeForthVM() {
 		vm.tob	=''	;	// initial terminal output buffer
     var tib		=''	;	// initial terminal  input buffer (source code)
     var nTib	= 0	;	// offset of tib processed
-    var newName	=''	;	// name of the word under construction
-    var newXt	=''	;	// javascript function under construction
     var error	= 0	;	// flag to abort source code interpreting
 	var words	=[0];	// collect all words defined
 	var nameWord={ };	// nameWord[name]=word
@@ -159,7 +157,7 @@ function JeForthVM() {
 	var endCode='end-code';
 	function code(){ // code <name> d( -- )	// low level definition as a new word
 		var i,t;
-		newName=nextToken();
+		vm.newName=nextToken();
 		t=tib.substr(nTib),i=t.indexOf(endCode),nTib+=i+endCode.length;
 		if(i<0){
 			panic("missing end-code for low level "+token+" definition");
@@ -167,12 +165,12 @@ function JeForthVM() {
 		}
 		var txt='('+t.substr(0,i)+')';
 		var newXt=eval(txt);//eval(txt);
-		addWord(newName,newXt);
+		addWord(vm.newName,newXt);
 	}
 	addWord('code',code);
-	function doLit(){ // doLit ( -- n ) // 
-		vm.dStack.push(vm.cArea[vm.ip++]);
-	}
+	function doLit(){ // doLit ( -- n ) //												//	v2
+		vm.dStack.push(vm.cArea[vm.ip++]);												//	v2
+	}																					//	v2
 	addWord('doLit',doLit);																//	v2
 	addWord('exit' ,exit );																//	v2
 	vm.nextToken=nextToken;																//	v2
