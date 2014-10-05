@@ -57,20 +57,21 @@ function JeForthVM() {
     }
     function compile(v) {	// compile v to code area									//	v2
 		var c= v===undefined ? vm.cArea[vm.ip++] : v;									//	v2
+		console.log('compile '+JSON.stringify(c));
 		vm.cArea.push(c);																//	v2
     }																					//	v2
     function compileCode(name,v) {	// compile named word to code area					//	v2
 		var n= name===undefined ? nextToken() : name;									//	v2
 		var w=vm.nameWord[n];															//	v2
 		compile(w);																		//	v2
-		if(v!==undefined) compile(v);													//	v2
+		if(v!==undefined)vm.compile(v);                                                 //	v2
     }																					//	v2
     function call(addr) {	// inner compiled code interpreting loop					//	v2
 	//	console.log(vm.ip+' --> rStack '+vm.rStack.length+': '+vm.rStack.join());		//	v2
 		vm.rStack.push(vm.ip), vm.ip=addr;												//	v2
 		while(vm.ip){																	//	v2
 			w=vm.cArea[vm.ip];															//	v2
-		//	console.log(vm.ip+': '+w.name);												//	v2
+		//	console.log(vm.ip+': '+w.name,vm.dStack);	//	v2
 			vm.ip++;																	//	v2
 			execute(w);																	//	v2
 		}																				//	v2
@@ -81,19 +82,19 @@ function JeForthVM() {
     }																					//	v2
     function execute(w){            // execute or compile a word
 		var immediate=w.immediate, compiling=immediate?0:vm.compiling;					//	v2
-		var s=(compiling?'compile':'execute')+' word ';	// for tracing only				//	v2
+	//	var s=(compiling?'compile':'execute')+' word ';	// for tracing only				//	v2
 		if(typeof w==='object'){
 			if(compiling){																//	v2
-				console.log('compile '+w.name);
+			//	console.log('compile '+w.name); // seems cannot get rid of this line
 				compile(w);																//	v2
 			} else {																	//	v2
 				var x=w.xt, t=typeof x;
-				s+=w.id+':\t'+w.name;					// for tracing only
+			//	s+=w.id+':\t'+w.name;					// for tracing only
 				if(t==="function"){
-					cr(s+' primitive');					// for tracing only
+				//	cr(s+' primitive');					// for tracing only
 					x();				// execute function x directly
 				} else if(t==="number"){												//	v2
-					cr(s+' colon at '+x);				// for tracing only				//	v2
+				//	cr(s+' colon at '+x);				// for tracing only				//	v2
 					call(x);			// execute colon definition at x				//	v2
 				} else {
 					panic('error execute:\t'+w.name+' w.xt='+x+' ????');// x is not a function
@@ -141,12 +142,12 @@ function JeForthVM() {
 					panic("? "+token+" undefined"); break; // token undefined
 				}																		//	v1
 				if(vm.compiling){														//	v2
-					console.log('compile doLit '+n);
+				//	console.log('compile doLit '+n);
 					compileCode('doLit',n);												//	v2
                 }else																	//	v2
 					dStack.push(n);														//	v1
 			}
-			console.log('dStack ===> '+dStack.length+':\t['+dStack.join()+']');			//	v1
+		//	console.log('dStack ===> '+dStack.length+':\t['+dStack.join()+']');			//	v1
         } while(!error && nTib<tib.length);	// loop back if no error and tib not finished
         return error || "ok";				// return error or ok
 	}
@@ -173,6 +174,7 @@ function JeForthVM() {
 	}																					//	v2
 	addWord('doLit',doLit);																//	v2
 	addWord('exit' ,exit );																//	v2
+	vm.panic=panic        ;																//	v2
 	vm.nextToken=nextToken;																//	v2
 	vm.compileCode=compileCode;															//	v2
 	vm.compile=compile    ;																//	v2
