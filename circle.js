@@ -18,3 +18,18 @@ function action(i){
 var t=setInterval( function(){
 	action(i);
 }, 1000);				// 每秒 輪流 藍 綠 黃 紅 閃其中一個 LED
+
+vm.LED=[LED3,LED2,LED1,LED4];
+vm.led=function(i){
+	var j= i===undefined ? vm.dStack.pop() : i ;
+	console.log(j,'led',vm.LED[j%4])
+	vm.dStack.push(vm.LED[j%4]);
+}
+vm.addWord('led',vm.led);
+vm.toggle=function(led){
+	var L= led===undefined ? vm.dStack.pop() : led ;
+	console.log('toggle',L)
+	digitalWrite(led,!digitalRead(L));
+}
+vm.addWord('toggle',vm.toggle);
+vm.exec('0 led toggle');
