@@ -1,6 +1,5 @@
 // jefvm.v2_test.js
 ///////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////
 function equal(tag,value,expected){ // asure value is exactly equal to expected
 	tests++;
 	if(value===expected){ passed++; console.log(tag,'ok'); }
@@ -194,7 +193,7 @@ setTimeout(function(){ // need 1000 ms delay
 	vm.exec('code >r		function(){ vm.rStack.push(vm.dStack.pop()); } end-code ');
 	vm.exec('code for		function(){ vm.compileCode(">r"),vm.dStack.push({name:"for",at:vm.cArea.length}); } end-code immediate ');
 	vm.exec('code doNext	function(){ i=vm.rStack.pop();if(i)vm.rStack.push(i-1),vm.ip+=vm.cArea[vm.ip]; else vm.ip++; } end-code ');
-	vm.exec('code next		function(){ var o=vm.dStack.pop(),t=typeof o; if(t!=="object" || o.name!=="for")vm.panic("there is no for to pair with next"); var i=o.at; vm.compileCode("doNext",i-vm.cArea.length-1); } end-code immediate ');
+	vm.exec('code next		function(){ var o=vm.dStack.pop(),t=typeof o; if(t!=="object" || o.name!=="for")vm.panic("there is no for to match next"); var i=o.at; vm.compileCode("doNext",i-vm.cArea.length-1); } end-code immediate ');
 	//////////////////////////////////////////////////////////////////////////////////////// v2
 	vm.exec(': z 9 for r@ . next ; z');
 	equal('test 14',vm.tob,'9 8 7 6 5 4 3 2 1 0 '),vm.cr();
@@ -225,8 +224,9 @@ setTimeout(function(){ // need 1000 ms delay
 	equal('test 16',vm.tob,'0 1 '),vm.cr();
 	//////////////////////////////////////////////////////////////////////////////////////// v2
 	vm.exec('code if   function(){vm.compileCode("zBranch",0),vm.dStack.push({name:"if",at:vm.cArea.length-1});}end-code immediate');
-	vm.exec('code else function(){var o=vm.dStack.pop(),t=typeof o; if(t!=="object" || o.name!=="if")vm.panic("there is no if to pair with else"); var i=o.at; vm.compileCode("branch",0),vm.dStack.push({name:"else",at:vm.cArea.length-1}),vm.cArea[i]=vm.cArea.length-i;}end-code immediate');
-	vm.exec('code then function(){var o=vm.dStack.pop(),t=typeof o; if(t!=="object" || (o.name!=="if" && o.name!=="else"))vm.panic("there is no if or else to pair with then"); var i=o.at; vm.cArea[i]=vm.cArea.length-i;}end-code immediate');
+	vm.exec('code else function(){var o=vm.dStack.pop(),t=typeof o; if(t!=="object" || o.name!=="if")vm.panic("there is no if to match else"); var i=o.at; vm.compileCode("branch",0),vm.dStack.push({name:"else",at:vm.cArea.length-1}),vm.cArea[i]=vm.cArea.length-i;}end-code immediate');
+	vm.exec('code then function(){var o=vm.dStack.pop(),t=typeof o; if(t!=="object" || (o.name!=="if" && o.name!=="else" && o.name!=="aft"))vm.panic("there is no if, else, or aft to match then"); var i=o.at; vm.cArea[i]=vm.cArea.length-i;}end-code immediate');
+	vm.exec('code aft  function(){var s=vm.dStack,o=s[s.length-1],t=typeof o; if(t!=="object" || o.name!=="for")vm.panic("there is no for to match aft"); var i=o.at; vm.compileCode("zBranch",0),vm.dStack.push({name:"aft",at:vm.cArea.length-1});}end-code immediate');
 	//////////////////////////////////////////////////////////////////////////////////////// v2
 	addr=vm.cArea.length;
 	vm.exec(': t17 if 1 else 0 then ;');
@@ -238,17 +238,17 @@ setTimeout(function(){ // need 1000 ms delay
 	vm.exec('code 1-     function(){vm.dStack[vm.dStack.length-1]--;}end-code');
 	vm.exec('code 0=     function(){var s=vm.dStack,m=s.length-1; s[m]=!s[m];}end-code');
 	vm.exec('code begin  function(){vm.dStack.push({name:"begin",at:vm.cArea.length-1});}end-code immediate');
-	vm.exec('code again  function(){var o=vm.dStack.pop(),t=typeof o; if(t!=="object" || o.name!=="begin")vm.panic("there is begin to pair with again"); var i=o.at; vm.compileCode( "branch", i-vm.cArea.length);}end-code immediate');
+	vm.exec('code again  function(){var o=vm.dStack.pop(),t=typeof o; if(t!=="object" || o.name!=="begin")vm.panic("there is begin to match again"); var i=o.at; vm.compileCode( "branch", i-vm.cArea.length);}end-code immediate');
 	vm.exec(': t19 begin dup . 1- ?dup 0= if exit then again ;');
 	vm.exec(' 9 t19');
 	equal('test 19',vm.tob,'9 8 7 6 5 4 3 2 1 '),vm.cr();
 	//////////////////////////////////////////////////////////////////////////////////////// v2
-	vm.exec('code until  function(){var o=vm.dStack.pop(),t=typeof o; if(t!=="object" || o.name!=="begin")vm.panic("there is no begin to pair with until"); var i=o.at; vm.compileCode("zBranch", i-vm.cArea.length);}end-code immediate');
+	vm.exec('code until  function(){var o=vm.dStack.pop(),t=typeof o; if(t!=="object" || o.name!=="begin")vm.panic("there is no begin to match until"); var i=o.at; vm.compileCode("zBranch", i-vm.cArea.length);}end-code immediate');
 	vm.exec(': t20 begin dup . 1- ?dup 0= until ; 9 t20');
 	equal('test 20',vm.tob,'9 8 7 6 5 4 3 2 1 '),vm.cr();
 	console.log('total tests', tests, 'passed', passed);
 	//////////////////////////////////////////////////////////////////////////////////////// v2
-	vm.exec('code while  function(){var s=vm.dStack,o=s[s.length-1],t=typeof o; if(t!=="object" || o.name!=="begin")vm.panic("there is no begin to pair with while"); var i=o.at; vm.compileCode("zBranch",0),vm.dStack.push({name:"while",at:vm.cArea.length-1});}end-code immediate');
+	vm.exec('code while  function(){var s=vm.dStack,o=s[s.length-1],t=typeof o; if(t!=="object" || o.name!=="begin")vm.panic("there is no begin to match while"); var i=o.at; vm.compileCode("zBranch",0),vm.dStack.push({name:"while",at:vm.cArea.length-1});}end-code immediate');
 	vm.exec(
 	'code repeat function(){                                                           \n'+
 	'	var o=vm.dStack.pop(),t=typeof o;                                              \n'+
